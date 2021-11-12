@@ -1,0 +1,1 @@
+web: cmd/bin/chat
