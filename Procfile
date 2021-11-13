@@ -1,1 +1,1 @@
-web: cmd/bin/chat -p ':8080'
+web: cmd/bin/chat

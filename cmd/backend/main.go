@@ -8,8 +8,9 @@ import (
 )
 
 func main() {
+	port := "8080"
 	h := openapi3.Handler(handlers.ChatServer{})
 
 	log.Println("Starting server on port :8080")
-	http.ListenAndServe(":8080", h)
+	http.ListenAndServe(":"+port, h)
 }
