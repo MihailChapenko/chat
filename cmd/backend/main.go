@@ -12,5 +12,5 @@ func main() {
 	h := openapi3.Handler(handlers.ChatServer{})
 
 	log.Println("Starting server on port :8080")
-	http.ListenAndServe(":"+port, h)
+	http.ListenAndServe(process.env.PORT || port, h)
 }
