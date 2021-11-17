@@ -1,77 +1,46 @@
 package handlers
 
 import (
-	"encoding/json"
-	"github.com/MihailChapenko/chat/pkg/openapi3"
-	"io/ioutil"
+	"github.com/MihailChapenko/chat/internal/services/user"
+	"github.com/MihailChapenko/chat/pkg/errors"
 	"net/http"
 )
 
-var users = make(map[string]openapi3.CreateUserRequest)
+type Handler interface {
+	CreateUser(w http.ResponseWriter, r *http.Request)
+	LoginUser(w http.ResponseWriter, r *http.Request)
+}
 
-type ChatServer struct{}
+type ChatServer struct {
+	userService user.Service
+}
+
+func NewHandler() Handler {
+	us := user.NewService()
+
+	return &ChatServer{
+		userService: us,
+	}
+}
 
 func (c ChatServer) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var input openapi3.CreateUserRequest
-	var output openapi3.CreateUserResponse
-
-	b, err := ioutil.ReadAll(r.Body)
+	res, err := user.CreateUser(w, r)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer r.Body.Close()
-
-	err = json.Unmarshal(b, &input)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
-		return
-	}
-
-	key := input.UserName
-	users[key] = input
-
-	output.Id = &input.UserName
-	output.UserName = &input.UserName
-	out, err := json.Marshal(output)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), err.(errors.ErrorResponse).Status)
 		return
 	}
 
 	w.Header().Set("content-type", "application/json")
-	w.Write(out)
+	w.Write(res)
 }
 
 func (c ChatServer) LoginUser(w http.ResponseWriter, r *http.Request) {
-	var input openapi3.LoginUserRequest
-	var output openapi3.LoginUserResonse
-
-	b, err := ioutil.ReadAll(r.Body)
+	res, err := user.LoginUser(w, r)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	defer r.Body.Close()
-
-	err = json.Unmarshal(b, &input)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
-		return
-	}
-
-	if _, ok := users[input.UserName]; !ok {
-		http.Error(w, "wrong username", 403)
-		return
-	}
-	output.Url = "google.com"
-
-	out, err := json.Marshal(output)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), err.(errors.ErrorResponse).Status)
 		return
 	}
 
 	w.Header().Set("content-type", "application/json")
-	w.Write(out)
+	w.Write(res)
 }
