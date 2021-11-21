@@ -6,8 +6,10 @@ import (
 	postgres "github.com/MihailChapenko/chat/internal/repository/Postgres/user"
 	"github.com/MihailChapenko/chat/pkg/errors"
 	"github.com/MihailChapenko/chat/pkg/hasher"
+	"github.com/MihailChapenko/chat/pkg/logger"
 	"github.com/MihailChapenko/chat/pkg/openapi3"
 	"github.com/MihailChapenko/chat/pkg/token_generator"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -22,19 +24,27 @@ type Service interface {
 //service describe user service struct
 type service struct {
 	userRepo postgres.UserRepository
+
+	log *zap.Logger
 }
 
 //NewService create new user service instance
 func NewService() Service {
 	ur := postgres.NewUserRepository()
 
+	l := logger.Get()
+	defer l.Sync()
+
 	return &service{
 		userRepo: ur,
+
+		log: l,
 	}
 }
 
 //CreateUser create user service
 func (s service) CreateUser(w http.ResponseWriter, r *http.Request) ([]byte, error) {
+	s.log.Info("create user service")
 	var input openapi3.CreateUserRequest
 	var output openapi3.CreateUserResponse
 

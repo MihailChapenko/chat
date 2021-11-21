@@ -4,6 +4,7 @@ import (
 	"github.com/MihailChapenko/chat/config"
 	"github.com/MihailChapenko/chat/db"
 	"github.com/MihailChapenko/chat/pkg/handlers"
+	"github.com/MihailChapenko/chat/pkg/logger"
 	"github.com/MihailChapenko/chat/pkg/openapi3"
 	"log"
 	"net/http"
@@ -12,13 +13,13 @@ import (
 
 func main() {
 	config.Init("../../config/dev.yaml")
+	cfg := config.Get()
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = cfg.Server.Port
 	}
 
-	cfg := config.Get()
-
+	logger.Init()
 	db.Init(cfg.DB)
 	h := openapi3.Handler(handlers.NewHandler())
 
