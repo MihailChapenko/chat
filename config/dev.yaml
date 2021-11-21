@@ -1,0 +1,8 @@
+# settings: server
+server:
+  port: 8080
+
+# settings: postgres
+db:
+  dialect: postgres
+  datasource: user=postgres password=secret dbname=postgres sslmode=disable

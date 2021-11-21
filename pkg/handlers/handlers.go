@@ -6,15 +6,18 @@ import (
 	"net/http"
 )
 
+//Handler user handler interface
 type Handler interface {
 	CreateUser(w http.ResponseWriter, r *http.Request)
 	LoginUser(w http.ResponseWriter, r *http.Request)
 }
 
+//ChatServer describe chet server struct
 type ChatServer struct {
 	userService user.Service
 }
 
+//NewHandler create new handler instance
 func NewHandler() Handler {
 	us := user.NewService()
 
@@ -23,8 +26,9 @@ func NewHandler() Handler {
 	}
 }
 
+//CreateUser create user handler
 func (c ChatServer) CreateUser(w http.ResponseWriter, r *http.Request) {
-	res, err := user.CreateUser(w, r)
+	res, err := c.userService.CreateUser(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), err.(errors.ErrorResponse).Status)
 		return
@@ -34,8 +38,9 @@ func (c ChatServer) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
+//LoginUser login user handler
 func (c ChatServer) LoginUser(w http.ResponseWriter, r *http.Request) {
-	res, err := user.LoginUser(w, r)
+	res, err := c.userService.LoginUser(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), err.(errors.ErrorResponse).Status)
 		return
